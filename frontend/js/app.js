@@ -1,5 +1,11 @@
 // State
-let isAuthenticated = localStorage.getItem('auth') === 'true';
+let isAuthenticated = false;
+try {
+  isAuthenticated = localStorage.getItem('auth') === 'true';
+} catch (e) {
+  console.warn('localStorage access restricted in this environment.');
+}
+
 let currentImagePreview = null;
 let socket = null;
 
@@ -19,9 +25,20 @@ let posts = [
   }
 ];
 
+// Safely create icons
+function safelyCreateIcons() {
+  try {
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  } catch (e) {
+    console.warn('Lucide icons failed to load.', e);
+  }
+}
+
 // Initialize UI
 function init() {
-  lucide.createIcons();
+  safelyCreateIcons();
   
   if (isAuthenticated) {
     document.getElementById('loginPage').classList.remove('active');
@@ -29,8 +46,12 @@ function init() {
     renderFeed();
     renderProfilePosts();
     
-    if (typeof io !== 'undefined') {
-      socket = io('http://localhost:5000');
+    try {
+      if (typeof io !== 'undefined') {
+        socket = io('http://localhost:5000');
+      }
+    } catch (e) {
+      console.warn('Socket connection failed.');
     }
   } else {
     document.getElementById('loginPage').classList.add('active');
@@ -40,33 +61,31 @@ function init() {
 
 // Navigation
 function navigate(viewId) {
-  // Hide all views
   document.getElementById('feedView').classList.add('hidden');
   document.getElementById('profileView').classList.add('hidden');
-  
-  // Show target view
   document.getElementById(viewId + 'View').classList.remove('hidden');
 
-  // Update sidebar active states
   document.getElementById('nav-feed').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-gray-600 hover:bg-gray-50 font-medium";
   document.getElementById('nav-profile').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-gray-600 hover:bg-gray-50 font-medium";
   
   const activeBtn = document.getElementById('nav-' + viewId);
-  activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-indigo-600 bg-indigo-50 font-medium";
+  if (activeBtn) {
+    activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-indigo-600 bg-indigo-50 font-medium";
+  }
   
-  lucide.createIcons();
+  safelyCreateIcons();
 }
 
 // Auth
 function handleLogin(e) {
   e.preventDefault();
-  localStorage.setItem('auth', 'true');
+  try { localStorage.setItem('auth', 'true'); } catch(e) {}
   isAuthenticated = true;
   init();
 }
 
 function handleLogout() {
-  localStorage.removeItem('auth');
+  try { localStorage.removeItem('auth'); } catch(e) {}
   isAuthenticated = false;
   if (socket) socket.disconnect();
   init();
@@ -114,7 +133,7 @@ function toggleLike(id) {
 
 function renderFeed() {
   document.getElementById('feedPosts').innerHTML = posts.map(generatePostHTML).join('');
-  lucide.createIcons();
+  safelyCreateIcons();
 }
 
 function renderProfilePosts() {
@@ -126,7 +145,7 @@ function renderProfilePosts() {
     likes: 2400, comments: 182, isLiked: true
   };
   document.getElementById('profilePosts').innerHTML = generatePostHTML(profilePost);
-  lucide.createIcons();
+  safelyCreateIcons();
 }
 
 // Media Upload
