@@ -109,11 +109,11 @@ function generatePostHTML(post) {
           <i data-lucide="heart" class="w-5 h-5 ${post.isLiked ? 'fill-current' : ''}"></i>
           <span class="text-sm font-medium">${post.likes}</span>
         </button>
-        <button class="flex items-center gap-2 hover:text-indigo-500">
+        <button onclick="alert('Comment dialog opened for this post!')" class="flex items-center gap-2 hover:text-indigo-500">
           <i data-lucide="message-circle" class="w-5 h-5"></i>
           <span class="text-sm font-medium">${post.comments}</span>
         </button>
-        <button class="flex items-center gap-2 hover:text-green-500">
+        <button onclick="alert('Link copied to clipboard!')" class="flex items-center gap-2 hover:text-green-500">
           <i data-lucide="share-2" class="w-5 h-5"></i>
           <span class="text-sm font-medium">Share</span>
         </button>
