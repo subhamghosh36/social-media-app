@@ -63,14 +63,21 @@ function init() {
 function navigate(viewId) {
   document.getElementById('feedView').classList.add('hidden');
   document.getElementById('profileView').classList.add('hidden');
+  document.getElementById('notificationsView').classList.add('hidden');
+  
   document.getElementById(viewId + 'View').classList.remove('hidden');
 
   document.getElementById('nav-feed').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-gray-600 hover:bg-gray-50 font-medium";
   document.getElementById('nav-profile').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-gray-600 hover:bg-gray-50 font-medium";
+  document.getElementById('nav-notifications').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-gray-600 hover:bg-gray-50 font-medium";
   
   const activeBtn = document.getElementById('nav-' + viewId);
   if (activeBtn) {
     activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-indigo-600 bg-indigo-50 font-medium";
+  }
+  
+  if (viewId === 'notifications') {
+    renderNotifications();
   }
   
   safelyCreateIcons();
@@ -91,6 +98,99 @@ function handleLogout() {
   init();
 }
 
+// Real Interactive Features
+let isFollowingProfile = false;
+let followerCount = 89300;
+
+function toggleFollow() {
+  isFollowingProfile = !isFollowingProfile;
+  followerCount += isFollowingProfile ? 1 : -1;
+  
+  const btn = document.getElementById('profileFollowBtn');
+  const display = document.getElementById('followerCountDisplay');
+  
+  if (isFollowingProfile) {
+    btn.innerText = 'Following';
+    btn.className = 'px-6 py-2 bg-gray-200 text-gray-900 rounded-full font-semibold hover:bg-gray-300 transition-colors';
+  } else {
+    btn.innerText = 'Follow';
+    btn.className = 'px-6 py-2 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 transition-colors';
+  }
+  
+  display.innerText = (followerCount / 1000).toFixed(1) + 'K';
+}
+
+function renderNotifications() {
+  const notifs = [
+    { type: 'like', text: 'Sarah Jenkins liked your recent photo.', time: '2m ago', icon: 'heart', color: 'text-red-500' },
+    { type: 'comment', text: 'Liam Chen commented on your post.', time: '1h ago', icon: 'message-circle', color: 'text-indigo-500' },
+    { type: 'follow', text: 'Maya Chen started following you.', time: '3h ago', icon: 'user-plus', color: 'text-green-500' }
+  ];
+  
+  document.getElementById('notificationList').innerHTML = notifs.map(n => `
+    <div class="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors">
+      <div class="p-2 bg-gray-100 rounded-full ${n.color}">
+        <i data-lucide="${n.icon}" class="w-5 h-5"></i>
+      </div>
+      <div class="flex-1">
+        <p class="text-gray-900 font-medium">${n.text}</p>
+        <p class="text-xs text-gray-500">${n.time}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function sharePost(id, btnElement) {
+  // Simulate copying to clipboard
+  const originalHtml = btnElement.innerHTML;
+  btnElement.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-green-500"></i><span class="text-sm font-medium text-green-500">Copied!</span>`;
+  safelyCreateIcons();
+  
+  setTimeout(() => {
+    btnElement.innerHTML = originalHtml;
+    safelyCreateIcons();
+  }, 2000);
+}
+
+function toggleComments(id) {
+  const commentSection = document.getElementById(`comments-${id}`);
+  if (commentSection.classList.contains('hidden')) {
+    commentSection.classList.remove('hidden');
+    commentSection.classList.add('fade-in');
+  } else {
+    commentSection.classList.add('hidden');
+  }
+}
+
+function postComment(id) {
+  const input = document.getElementById(`comment-input-${id}`);
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const commentList = document.getElementById(`comment-list-${id}`);
+  const newComment = document.createElement('div');
+  newComment.className = 'flex gap-2 text-sm';
+  newComment.innerHTML = `
+    <span class="font-bold text-gray-900">You</span>
+    <span class="text-gray-700">${text}</span>
+  `;
+  commentList.appendChild(newComment);
+  
+  input.value = '';
+  
+  // Increment comment count
+  const post = posts.find(p => p.id === id);
+  if (post) {
+    post.comments++;
+    renderFeed(); // Re-render to update the count
+    
+    // Auto-open comments again since re-render resets it
+    setTimeout(() => {
+      document.getElementById(`comments-${id}`).classList.remove('hidden');
+    }, 10);
+  }
+}
+
 // Posts & Likes
 function generatePostHTML(post) {
   return `
@@ -109,14 +209,28 @@ function generatePostHTML(post) {
           <i data-lucide="heart" class="w-5 h-5 ${post.isLiked ? 'fill-current' : ''}"></i>
           <span class="text-sm font-medium">${post.likes}</span>
         </button>
-        <button onclick="alert('Comment dialog opened for this post!')" class="flex items-center gap-2 hover:text-indigo-500">
+        <button onclick="toggleComments('${post.id}')" class="flex items-center gap-2 hover:text-indigo-500 transition-colors">
           <i data-lucide="message-circle" class="w-5 h-5"></i>
           <span class="text-sm font-medium">${post.comments}</span>
         </button>
-        <button onclick="alert('Link copied to clipboard!')" class="flex items-center gap-2 hover:text-green-500">
+        <button onclick="sharePost('${post.id}', this)" class="flex items-center gap-2 hover:text-green-500 transition-colors">
           <i data-lucide="share-2" class="w-5 h-5"></i>
           <span class="text-sm font-medium">Share</span>
         </button>
+      </div>
+      
+      <!-- Hidden Interactive Comments Section -->
+      <div id="comments-${post.id}" class="hidden mt-4 pt-4 border-t border-gray-50">
+        <div id="comment-list-${post.id}" class="space-y-2 mb-3">
+           <div class="flex gap-2 text-sm">
+             <span class="font-bold text-gray-900">user_404</span>
+             <span class="text-gray-700">This is awesome! 🔥</span>
+           </div>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="comment-input-${post.id}" class="flex-1 px-3 py-1.5 border rounded-full text-sm outline-none focus:border-indigo-500 transition-colors" placeholder="Write a comment...">
+          <button onclick="postComment('${post.id}')" class="px-4 py-1.5 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700">Post</button>
+        </div>
       </div>
     </div>
   `;

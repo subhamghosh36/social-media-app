@@ -63,7 +63,7 @@
         <button onclick="navigate('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-gray-600 hover:bg-gray-50 font-medium">
           <i data-lucide="user" class="w-5 h-5"></i> Profile
         </button>
-        <button onclick="alert('Notifications feature coming soon!')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-gray-600 hover:bg-gray-50 font-medium">
+        <button onclick="navigate('notifications')" id="nav-notifications" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors text-gray-600 hover:bg-gray-50 font-medium">
           <i data-lucide="bell" class="w-5 h-5"></i> Notifications
         </button>
         <button onclick="document.getElementById('postInput').focus()" class="w-full mt-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-medium transition-colors">
@@ -111,6 +111,14 @@
           <div id="feedPosts"></div>
         </div>
 
+        <!-- NOTIFICATIONS VIEW -->
+        <div id="notificationsView" class="view hidden">
+          <h1 class="text-2xl font-bold text-gray-900 mb-6">Notifications</h1>
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" id="notificationList">
+            <!-- Notifications will be injected here by app.js -->
+          </div>
+        </div>
+
         <!-- PROFILE VIEW -->
         <div id="profileView" class="view hidden">
           <div class="relative w-full h-48 md:h-64 bg-gray-200 rounded-b-2xl overflow-hidden">
@@ -122,8 +130,8 @@
                 <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop" class="w-full h-full object-cover">
               </div>
               <div class="flex gap-2">
-                <button onclick="alert('Followed Maya Chen!')" class="px-6 py-2 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800">Follow</button>
-                <button onclick="alert('Opening chat with Maya...')" class="px-6 py-2 border border-gray-200 rounded-full font-semibold hover:bg-gray-50">Message</button>
+                <button id="profileFollowBtn" onclick="toggleFollow()" class="px-6 py-2 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 transition-colors">Follow</button>
+                <button class="px-6 py-2 border border-gray-200 rounded-full font-semibold hover:bg-gray-50 transition-colors">Message</button>
               </div>
             </div>
             <div class="mb-4">
@@ -133,7 +141,7 @@
             <p class="text-gray-800 mb-4 max-w-xl">Adventure seeker 🌿 | Digital Nomad | Lover of mountains, coffee, and code. Currently exploring Kyoto. ✨</p>
             <div class="flex gap-6 border-b border-gray-100 pb-6">
               <div class="flex flex-col"><span class="font-bold text-gray-900 text-lg">1,245</span><span class="text-gray-500 text-sm">Posts</span></div>
-              <div class="flex flex-col"><span class="font-bold text-gray-900 text-lg">89.3K</span><span class="text-gray-500 text-sm">Followers</span></div>
+              <div class="flex flex-col"><span id="followerCountDisplay" class="font-bold text-gray-900 text-lg">89.3K</span><span class="text-gray-500 text-sm">Followers</span></div>
               <div class="flex flex-col"><span class="font-bold text-gray-900 text-lg">612</span><span class="text-gray-500 text-sm">Following</span></div>
             </div>
           </div>
