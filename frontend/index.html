@@ -14,6 +14,13 @@
 
   <!-- Custom CSS for assignment requirements & animations -->
   <link rel="stylesheet" href="css/style.css">
+  
+  <style>
+    /* Critical visibility logic (fallback in case style.css is delayed) */
+    .page { display: none; }
+    #loginPage.page { display: flex; } /* Initial state before JS */
+    #appShell.page { display: none; }
+  </style>
 </head>
 <body class="antialiased text-gray-900">
 

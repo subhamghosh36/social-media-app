@@ -41,6 +41,9 @@ function init() {
   safelyCreateIcons();
   
   if (isAuthenticated) {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appShell').style.display = 'block';
+    
     document.getElementById('loginPage').classList.remove('active');
     document.getElementById('appShell').classList.add('active');
     renderFeed();
@@ -54,6 +57,9 @@ function init() {
       console.warn('Socket connection failed.');
     }
   } else {
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('appShell').style.display = 'none';
+    
     document.getElementById('loginPage').classList.add('active');
     document.getElementById('appShell').classList.remove('active');
   }
