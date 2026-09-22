@@ -90,4 +90,4 @@ const Pages = {
         })}
       </div>
   }
-};
+}
