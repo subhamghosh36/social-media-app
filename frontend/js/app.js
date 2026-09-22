@@ -89,6 +89,26 @@ function navigate(viewId) {
   safelyCreateIcons();
 }
 
+// Sidebar Post Button Logic
+function sidebarPostClick() {
+  // 1. Force navigation to the Home Feed tab
+  navigate('feed');
+  
+  // 2. Scroll to the very top smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  // 3. Add a slight delay for the view to render, then focus the text box
+  setTimeout(() => {
+    const postInput = document.getElementById('postInput');
+    if (postInput) {
+      postInput.focus();
+      // Optional: Add a brief highlight effect to draw the eye
+      postInput.parentElement.classList.add('ring-2', 'ring-indigo-500', 'rounded-lg');
+      setTimeout(() => postInput.parentElement.classList.remove('ring-2', 'ring-indigo-500', 'rounded-lg'), 1000);
+    }
+  }, 100);
+}
+
 // Auth
 function handleLogin(e) {
   e.preventDefault();
