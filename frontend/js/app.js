@@ -95,6 +95,7 @@ const App = {
 
   // Router core
   routes: {
+    '': { view: Pages.Feed, protected: true },
     '/': { view: Pages.Feed, protected: true },
     '/profile': { view: Pages.Profile, protected: true },
     '/login': { view: Pages.Login, protected: false },
@@ -102,17 +103,19 @@ const App = {
   },
 
   navigateTo: (url) => {
-    history.pushState(null, null, url);
-    App.router();
+    // Convert normal paths to hash paths
+    const hashUrl = url.startsWith('#') ? url : '#' + url;
+    location.hash = hashUrl;
   },
 
   router: () => {
-    let path = location.pathname;
+    // Get path from hash, default to '/'
+    let path = location.hash.slice(1) || '/';
     
     // Default fallback
     if (!App.routes[path]) {
       path = '/';
-      history.replaceState(null, null, path);
+      location.hash = '#/';
     }
 
     const route = App.routes[path];
@@ -169,12 +172,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.addEventListener('click', e => {
     if (e.target.matches('[data-link]')) {
       e.preventDefault();
-      App.navigateTo(e.target.href);
+      const href = e.target.getAttribute('href');
+      App.navigateTo(href);
     }
   });
 
-  // Handle browser back/forward buttons
-  window.addEventListener('popstate', App.router);
+  // Handle hash changes (back/forward buttons)
+  window.addEventListener('hashchange', App.router);
 
   // Initial load
   App.router();
